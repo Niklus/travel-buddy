@@ -1,14 +1,17 @@
-import { useState, useEffect, useLayoutEffect } from "react";
-import dayjs from "dayjs";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Http from "./utils/http";
 import mapboxgl from "mapbox-gl";
 import countries from "./countries";
+import Info1 from "./components/Info1";
+import Info2 from "./components/Info2";
+import Form from "./components/Form";
 
 const http = new Http();
 
 function App() {
   const [country, setCountry] = useState({});
   const [time, setTime] = useState("");
+  const mapRef = useRef();
 
   useEffect(() => {
     getCountry("Sweden");
@@ -20,6 +23,7 @@ function App() {
       "pk.eyJ1IjoibmlrbHVzIiwiYSI6ImNrZm51bm11MDJjOXoycm52Y3V1Z2VoMjcifQ.ZdjynuwEJtkaktmIpVCyqg";
 
     if (Object.keys(country).length !== 0) {
+      mapRef.current.innerHTML = "";
       new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/mapbox/dark-v10",
@@ -48,7 +52,6 @@ function App() {
       .get(`/api/timezone/${country.timezone.name}`)
       .then((data) => {
         setTime(data);
-        console.log(data);
       })
       .catch((err) => {
         console.error("OOPS:" + err);
@@ -58,7 +61,6 @@ function App() {
   function handleNameChange(event) {
     const value = event.target.value;
     const newValue = value.charAt(0).toUpperCase() + value.slice(1);
-
     if (countries.indexOf(newValue) !== -1) {
       getCountry(newValue);
     }
@@ -73,112 +75,10 @@ function App() {
       <header>
         <h1>Travelbuddy</h1>
       </header>
-      <div className="datalist">
-        <input
-          list="countries"
-          id="myCountry"
-          name="myCountry"
-          placeholder="Search for a country"
-          onChange={handleNameChange}
-        />
-        <datalist id="countries">
-          {countries.map((country) => {
-            return <option key={country} value={`${country}`} />;
-          })}
-        </datalist>
-      </div>
+      <Form countries={countries} onNameChange={handleNameChange} />
       <main>
-        <div className="info">
-          <section className="name">
-            <img
-              src={`https://flagcdn.com/${country.names.iso2.toLowerCase()}.svg`}
-              height="120px"
-              alt={country.names.name}
-            />
-            <div>
-              <h1>{country.names.name}</h1>
-              <h3>{country.names.full}</h3>
-            </div>
-          </section>
-          <section>
-            <h2>
-              Travel Advice <span className="material-icons">flight</span>
-            </h2>
-            <hr />
-            <p>{country.advise.UA.advise}</p>
-            <p
-              dangerouslySetInnerHTML={{ __html: country.advise.CA.advise }}
-            ></p>
-          </section>
-          <section>
-            <h2>
-              Drinking Water <span className="material-icons">local_drink</span>
-            </h2>
-            <hr />
-            <p>
-              Drinking tap water in {country.names.name} is{" "}
-              {country.water.short}
-            </p>
-          </section>
-          <section>
-            <h2>
-              Language <span className="material-icons">language</span>
-            </h2>
-            <hr />
-            <p>
-              The language(s) spoken in {country.names.name} is{" "}
-              {country.language[0].language}{" "}
-              {country.language[1] ? "& " + country.language[1].language : null}
-            </p>
-          </section>
-          <section>
-            <h2>
-              Time Zone <span className="material-icons">schedule</span>
-            </h2>
-            <hr />
-            <p>{country.timezone.name}</p>
-            <p>
-              {dayjs(time.datetime).format("MMM D YYYY")}
-              <span> {time.abbreviation}</span>
-            </p>
-          </section>
-          <section>
-            <h2>
-              Currency <span className="material-icons">account_balance</span>
-            </h2>
-            <hr />
-            <p>
-              The currency in {country.names.name} is {country.currency.name} -{" "}
-              {country.currency.code}
-            </p>
-          </section>
-        </div>
-        <div>
-          <div id="map" style={{ width: "470px", height: "500px" }}></div>
-          <section>
-            <h2>
-              Telephone <span className="material-icons">call_end</span>
-            </h2>
-            <hr />
-            <p style={{ lineHeight: "30px" }}>
-              Calling Code: +{country.telephone.calling_code}
-              <br />
-              Police: {country.telephone.police}
-              <br />
-              Ambulance: {country.telephone.ambulance}
-              <br />
-              Fire: {country.telephone.fire}
-            </p>
-          </section>
-          <section>
-            <h2>
-              Electricity <span className="material-icons">bolt</span>
-            </h2>
-            <hr />
-            <p>Voltage: {country.electricity.voltage} Volt</p>
-            <p>Frequency: {country.electricity.frequency} Herz</p>
-          </section>
-        </div>
+        <Info1 country={country} time={time} />
+        <Info2 country={country} mapRef={mapRef} />
       </main>
       {/*<pre>{JSON.stringify(country, null, 3)}</pre>*/}
     </>
