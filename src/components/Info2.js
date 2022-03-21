@@ -4,7 +4,7 @@ function Info2(props) {
     <div className="info2">
       <div
         id="map"
-        style={{ width: "470px", height: "500px" }}
+        style={{ width: "500px", height: "500px" }}
         ref={mapRef}
       ></div>
       <section>

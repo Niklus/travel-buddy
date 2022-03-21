@@ -77,8 +77,10 @@ function App() {
       </header>
       <Form countries={countries} onNameChange={handleNameChange} />
       <main>
-        <Info1 country={country} time={time} />
-        <Info2 country={country} mapRef={mapRef} />
+        <div className="info">
+          <Info1 country={country} time={time} />
+          <Info2 country={country} mapRef={mapRef} />
+        </div>
       </main>
       {/*<pre>{JSON.stringify(country, null, 3)}</pre>*/}
     </>
