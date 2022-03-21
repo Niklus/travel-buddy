@@ -1,6 +1,6 @@
 function Form(props) {
   return (
-    <form className="datalist">
+    <form className="datalist" onSubmit={(e) => e.preventDefault()}>
       <input
         list="countries"
         id="myCountry"
